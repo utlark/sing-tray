@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>nekobox.png</file>
+    </qresource>
+</RCC>
