@@ -6,7 +6,6 @@
 
 #include "Extension/RouteManager.h"
 #include "Extension/DottedIcon.h"
-#include "Resources/Icon.cpp"
 #include "Sys/SystemCtl.h"
 #include "Sys/AutoRun.h"
 
@@ -15,7 +14,7 @@ QString appVersion = "v1.0.0";
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
-    DottedIcon dottedIcon(":/nekobox.png");
+    DottedIcon dottedIcon("./Icon.png");
     auto workIcon = dottedIcon.GetIcon(Qt::blue);
     auto stopIcon = dottedIcon.GetIcon(Qt::red);
 

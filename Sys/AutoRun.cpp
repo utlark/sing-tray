@@ -26,6 +26,7 @@ void AutoRun::SetEnabled(bool enable) {
         ts << QLatin1String("[Desktop Entry]") << NEWLINE
            << QLatin1String("Name=") << appName << NEWLINE
            << QLatin1String("Exec=") << QApplication::applicationFilePath() << NEWLINE
+           << QLatin1String("Icon=") << QCoreApplication::applicationDirPath() + "/Icon.png" << NEWLINE
            << QLatin1String("Terminal=") << "false" << NEWLINE
            << QLatin1String("Categories=") << "Network" << NEWLINE
            << QLatin1String("Type=") << "Application" << NEWLINE

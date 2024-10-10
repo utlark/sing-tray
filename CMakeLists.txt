@@ -17,6 +17,8 @@ add_executable(${TARGET_NAME} main.cpp
         Extension/RouteManager.cpp
         Extension/RouteManager.h)
 
+configure_file("./Resources/Icon.png" Icon.png COPYONLY)
+
 find_package(Qt6 COMPONENTS Core Gui Widgets REQUIRED)
 target_link_libraries(${TARGET_NAME} Qt::Core Qt::Gui Qt::Widgets)
 
