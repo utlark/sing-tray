@@ -1,3 +1,11 @@
+//
+// The code of this class is taken from the project:
+//      https://github.com/MatsuriDayo/nekoray/blob/main/3rdparty/qv2ray/v2/components/proxy/QvProxyConfigurator.cpp
+//
+//  Created by MatsuriDayo
+//  Copyright © MatsuriDayo
+//
+
 #include "Proxy.h"
 
 #define IntToQstring(num) QString::number(num)

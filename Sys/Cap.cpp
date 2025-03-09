@@ -1,3 +1,11 @@
+//
+// The code of this class is taken from the project:
+//      https://github.com/MatsuriDayo/nekoray/blob/main/sys/linux/LinuxCap.cpp
+//
+//  Created by MatsuriDayo
+//  Copyright © MatsuriDayo
+//
+
 #include "Cap.h"
 
 #define EXIT_CODE(p) (p.exitStatus() == QProcess::NormalExit ? p.exitCode() : -1)

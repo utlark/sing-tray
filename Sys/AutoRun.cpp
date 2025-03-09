@@ -1,3 +1,11 @@
+//
+// The code of this class is taken from the project:
+//      https://github.com/MatsuriDayo/nekoray/blob/main/sys/AutoRun.cpp
+//
+//  Created by MatsuriDayo
+//  Copyright © MatsuriDayo
+//
+
 #include "AutoRun.h"
 
 #define NEWLINE "\n"
