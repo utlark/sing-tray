@@ -1,20 +1,22 @@
 #include "ConfigParser.h"
 
-QPair<QString, int> ConfigParser::GetMixedInbound(QFile *configFile) {
-    if (!configFile->open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qWarning() << "Couldn't open the file: " << configFile->fileName();
+QPair<QString, int> ConfigParser::GetMixedInbound(const QString &configFilePath) {
+    QFile configFile(configFilePath);
+
+    if (!configFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "Couldn't open the file: " << configFilePath;
         exit(1);
     }
 
-    QJsonDocument doc = QJsonDocument::fromJson(configFile->readAll());
+    QJsonDocument doc = QJsonDocument::fromJson(configFile.readAll());
     if (doc.isNull() || !doc.isObject()) {
-        qWarning() << "Invalid JSON: " << configFile->fileName();
+        qWarning() << "Invalid JSON: " << configFilePath;
         exit(1);
     }
 
     QJsonObject rootObj = doc.object();
     if (!rootObj.contains("inbounds") || !rootObj["inbounds"].isArray()) {
-        qWarning() << "The 'inbounds' section was not found: " << configFile->fileName();
+        qWarning() << "The 'inbounds' section was not found: " << configFilePath;
         exit(1);
     }
 

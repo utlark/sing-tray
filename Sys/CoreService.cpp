@@ -19,7 +19,7 @@ void CoreService::Start() {
     if (!CoreService::IsRunning()) {
         Process.start(BinPath, {"--directory", WorkDir, "--disable-color", "run"});
 
-        auto proxySettings = ConfigParser::GetMixedInbound(ConfigFile);
+        auto proxySettings = ConfigParser::GetMixedInbound(ConfigFile->fileName());
         if (!proxySettings.first.isNull() && !proxySettings.first.isEmpty())
             Proxy::SetSystemProxy(proxySettings.first, proxySettings.second, proxySettings.second);
 

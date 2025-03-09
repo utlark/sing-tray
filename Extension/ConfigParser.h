@@ -11,7 +11,7 @@
 
 class ConfigParser {
 public:
-    static QPair<QString, int> GetMixedInbound(QFile *configFile);
+    static QPair<QString, int> GetMixedInbound(const QString &configFilePath);
 };
 
 
