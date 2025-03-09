@@ -14,6 +14,8 @@ add_executable(${TARGET_NAME} main.cpp
         Sys/Cap.h
         Sys/CoreService.cpp
         Sys/CoreService.h
+        Sys/Proxy.cpp
+        Sys/Proxy.h
         Extension/Cryptographic.cpp
         Extension/Cryptographic.h
         Extension/DottedIcon.cpp

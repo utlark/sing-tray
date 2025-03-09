@@ -8,6 +8,7 @@
 #include <QString>
 #include <QDir>
 
+#include "Proxy.h"
 #include "Cap.h"
 
 class CoreService : public QObject {
@@ -31,7 +32,7 @@ public:
 
     QFile *ConfigFile = new QFile(WorkDir + "/config.json");
 private:
-    QProcess process;
+    QProcess Process;
 };
 
 #endif //SING_TRAY_CORESERVICE_H

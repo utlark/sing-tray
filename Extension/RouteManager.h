@@ -32,10 +32,10 @@ public:
 
     QString RoutesDirPath = QCoreApplication::applicationDirPath() + "/Routes/";
 private:
-    QMenu *routesMenu;
-    QFile *configFile;
+    QMenu *RoutesMenu;
+    QFile *ConfigFile;
 
-    QStringList routesFilter = QStringList() << "*.json";
+    QStringList RoutesFilter = QStringList() << "*.json";
 };
 
 #endif //SING_TRAY_ROUTEMANAGER_H

@@ -17,23 +17,25 @@ CoreService::~CoreService() {
 
 void CoreService::Start() {
     if (!CoreService::IsRunning()) {
-        process.start(BinPath, {"--directory", WorkDir, "--disable-color", "run"});
+        Process.start(BinPath, {"--directory", WorkDir, "--disable-color", "run"});
+        Proxy::SetSystemProxy("127.0.0.1", 2080, 2080);
 
-        if (process.waitForStarted())
+        if (Process.waitForStarted())
             qDebug() << "Sing-box started";
         else
-            qWarning() << "Failed to start sing-box: " << process.errorString();
+            qWarning() << "Failed to start sing-box: " << Process.errorString();
     }
 }
 
 void CoreService::Stop() {
     if (CoreService::IsRunning()) {
-        process.kill();
+        Process.kill();
+        Proxy::ClearSystemProxy();
 
-        if (process.waitForFinished())
+        if (Process.waitForFinished())
             qDebug() << "Sing-box stopped";
         else
-            qWarning() << "Failed to stop sing-box: " << process.errorString();
+            qWarning() << "Failed to stop sing-box: " << Process.errorString();
     }
 }
 
@@ -45,5 +47,5 @@ void CoreService::Restart() {
 }
 
 bool CoreService::IsRunning() {
-    return process.state() == QProcess::Running;
+    return Process.state() == QProcess::Running;
 }

@@ -1,20 +1,20 @@
 #include "RouteManager.h"
 
-RouteManager::RouteManager(QObject *parent, QMenu *menu, QFile *configFile) : QObject(parent), routesMenu(menu), configFile(configFile) {
+RouteManager::RouteManager(QObject *parent, QMenu *menu, QFile *configFile) : QObject(parent), RoutesMenu(menu), ConfigFile(configFile) {
     LoadRoutes();
 
-    if (!configFile->exists() && !routesMenu->actions().isEmpty())
-        routesMenu->actions().first()->trigger();
+    if (!configFile->exists() && !RoutesMenu->actions().isEmpty())
+        RoutesMenu->actions().first()->trigger();
 
     UpdateActiveRoute();
 }
 
 void RouteManager::UpdateActiveRoute() {
     QString currentHash;
-    if (configFile->exists())
-        currentHash = Cryptographic::CalculateSha256(configFile->fileName());
+    if (ConfigFile->exists())
+        currentHash = Cryptographic::CalculateSha256(ConfigFile->fileName());
 
-    for (QAction *action: routesMenu->actions())
+    for (QAction *action: RoutesMenu->actions())
         if (Cryptographic::CalculateSha256(RoutesDirPath + action->text() + ".json") == currentHash)
             action->setChecked(true);
         else
@@ -29,7 +29,7 @@ void RouteManager::LoadRoutes() {
         exit(1);
     }
 
-    routesDir.setNameFilters(routesFilter);
+    routesDir.setNameFilters(RoutesFilter);
     QFileInfoList fileList = routesDir.entryInfoList(QDir::Files, QDir::Name);
 
     if (fileList.isEmpty()) {
@@ -37,17 +37,17 @@ void RouteManager::LoadRoutes() {
         exit(1);
     }
 
-    routesMenu->clear();
+    RoutesMenu->clear();
     for (const QFileInfo &fileInfo: fileList) {
-        auto routeAction = new QAction(fileInfo.fileName().remove(".json"), routesMenu);
+        auto routeAction = new QAction(fileInfo.fileName().remove(".json"), RoutesMenu);
         routeAction->setCheckable(true);
-        routesMenu->addAction(routeAction);
+        RoutesMenu->addAction(routeAction);
 
         bool connectionSuccess = QObject::connect(routeAction, &QAction::triggered, [fileInfo, this]() {
-            if (configFile->exists() && !configFile->remove())
-                qWarning() << "Failed to delete" << configFile->fileName();
+            if (ConfigFile->exists() && !ConfigFile->remove())
+                qWarning() << "Failed to delete" << ConfigFile->fileName();
 
-            if (QFile::copy(fileInfo.absoluteFilePath(), configFile->fileName())) {
+            if (QFile::copy(fileInfo.absoluteFilePath(), ConfigFile->fileName())) {
                 emit routeChanged();
                 UpdateActiveRoute();
             } else {
