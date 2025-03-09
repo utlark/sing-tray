@@ -10,7 +10,7 @@
 #include "Sys/CoreService.h"
 #include "Sys/AutoRun.h"
 
-QString appVersion = "v2.0.0";
+QString appVersion = "v2.1.0";
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
