@@ -1,18 +1,13 @@
 #include "DottedIcon.h"
 
-DottedIcon::DottedIcon(const QString &iconPath) : basePixmap(iconPath) {
-    x = basePixmap.width() - radius - 16;
-    y = basePixmap.height() - radius - 16;
-}
-
-QIcon DottedIcon::GetIcon(const QColor &dotColor) {
-    QPixmap pixmap = basePixmap.copy();
+QIcon DottedIcon::GetIcon(QString &iconPath, const QColor &dotColor, int radius, int rightBottomCornerMargin) {
+    QPixmap pixmap(iconPath);
 
     QPainter painter(&pixmap);
     painter.setBrush(dotColor);
     painter.setPen(Qt::NoPen);
-    painter.drawEllipse(QPoint(x, y), radius, radius);
+    painter.drawEllipse(QPoint(pixmap.width() - radius - rightBottomCornerMargin, pixmap.height() - radius - rightBottomCornerMargin), radius, radius);
     painter.end();
 
-    return {pixmap};
+    return pixmap;
 }

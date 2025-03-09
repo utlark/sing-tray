@@ -9,19 +9,32 @@
 #include <QMenu>
 #include <QDir>
 
-#include "../Sys/SystemCtl.h"
+#include "Cryptographic.h"
 
-class RouteManager {
+class RouteManager : public QObject {
+Q_OBJECT
+
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "NotImplementedFunctions"
+
+signals:
+
+    void routeChanged();
+
+#pragma clang diagnostic pop
+
 public:
-    explicit RouteManager(QMenu *menu);
+    explicit RouteManager(QObject *parent, QMenu *menu, QFile *configFile);
 
     void LoadRoutes();
 
     void UpdateActiveRoute();
 
+    QString RoutesDirPath = QCoreApplication::applicationDirPath() + "/Routes/";
 private:
     QMenu *routesMenu;
-    QString destinationPath = "/etc/sing-box/config.json";
+    QFile *configFile;
+
     QStringList routesFilter = QStringList() << "*.json";
 };
 

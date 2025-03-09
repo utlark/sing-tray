@@ -8,12 +8,16 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 add_executable(${TARGET_NAME} main.cpp
-        Extension/DottedIcon.cpp
-        Extension/DottedIcon.h
-        Sys/SystemCtl.cpp
-        Sys/SystemCtl.h
         Sys/AutoRun.cpp
         Sys/AutoRun.h
+        Sys/Cap.cpp
+        Sys/Cap.h
+        Sys/CoreService.cpp
+        Sys/CoreService.h
+        Extension/Cryptographic.cpp
+        Extension/Cryptographic.h
+        Extension/DottedIcon.cpp
+        Extension/DottedIcon.h
         Extension/RouteManager.cpp
         Extension/RouteManager.h)
 

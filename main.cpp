@@ -6,78 +6,88 @@
 
 #include "Extension/RouteManager.h"
 #include "Extension/DottedIcon.h"
-#include "Sys/SystemCtl.h"
+
+#include "Sys/CoreService.h"
 #include "Sys/AutoRun.h"
 
 QString appVersion = "v1.0.0";
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
+    CoreService coreService(&app);
 
-    DottedIcon dottedIcon("./Icon.png");
-    auto workIcon = dottedIcon.GetIcon(Qt::blue);
-    auto stopIcon = dottedIcon.GetIcon(Qt::red);
+    QString iconPath(QCoreApplication::applicationDirPath() + "/Icon.png");
 
     QSystemTrayIcon trayIcon;
-    trayIcon.setIcon(SystemCtl::CheckStatus("sing-box") ? workIcon : stopIcon);
+    trayIcon.setIcon(DottedIcon::GetIcon(iconPath, Qt::transparent));
     trayIcon.setToolTip("Tray sing-box control center");
 
     QMenu menu;
 
-    auto *startWithSystem = new QAction("Start with system", &menu);
-    startWithSystem->setCheckable(true);
-    startWithSystem->setChecked(AutoRun::IsEnabled());
+    QMenu routingMenu("Active Routing", &menu);
+    RouteManager routeManager(&app, &routingMenu, coreService.ConfigFile);
+    bool connectionSuccess = QObject::connect(&routeManager, &RouteManager::routeChanged, [&coreService]() {
+        coreService.Restart();
+    });
 
-    auto *startProxy = new QAction(SystemCtl::CheckStatus("sing-box") ? "Stop Proxy" : "Start Proxy", &menu);
-    auto *restartProxy = new QAction("Restart Proxy", &menu);
+    QAction restartProxy("Restart Proxy", &menu);
+    connectionSuccess = connectionSuccess && QObject::connect(&restartProxy, &QAction::triggered, [&coreService]() {
+        coreService.Restart();
+    });
 
-    auto *versionMenu = new QMenu("Version", &menu);
-    versionMenu->addAction(new QAction(appVersion, versionMenu));
+    QAction startProxy(coreService.IsRunning() ? "Stop Proxy" : "Start Proxy", &menu);
+    connectionSuccess = connectionSuccess && QObject::connect(&startProxy, &QAction::triggered, [&coreService]() {
+        if (coreService.IsRunning())
+            coreService.Stop();
+        else
+            coreService.Start();
+    });
 
-    auto *exitAction = new QAction("Exit", &menu);
-
-    auto *routingMenu = new QMenu("Active Routing", &menu);
-    RouteManager routeManager(routingMenu);
-
-    bool connectionSuccess = QObject::connect(startWithSystem, &QAction::triggered, [=](bool checked) {
+    QAction startWithSystem("Start with system", &menu);
+    startWithSystem.setCheckable(true);
+    startWithSystem.setChecked(AutoRun::IsEnabled());
+    connectionSuccess = connectionSuccess && QObject::connect(&startWithSystem, &QAction::triggered, [=](bool checked) {
         AutoRun::SetEnabled(checked);
     });
 
-    connectionSuccess = connectionSuccess && QObject::connect(startProxy, &QAction::triggered, []() {
-        SystemCtl::Execute("sing-box", SystemCtl::CheckStatus("sing-box") ? "stop" : "start");
-    });
-    connectionSuccess = connectionSuccess && QObject::connect(restartProxy, &QAction::triggered, []() {
-        SystemCtl::Execute("sing-box", "restart");
-    });
+    QMenu versionMenu("Version", &menu);
+    QAction versionAction(appVersion, &versionMenu);
+    versionMenu.addAction(&versionAction);
 
-    connectionSuccess = connectionSuccess && QObject::connect(exitAction, &QAction::triggered, &app, &QApplication::quit);
+    QAction exitAction("Exit", &menu);
+    connectionSuccess = connectionSuccess && QObject::connect(&exitAction, &QAction::triggered, &app, &QApplication::quit);
 
     QTimer timer;
+    QIcon workIcon = DottedIcon::GetIcon(iconPath, Qt::blue);
+    QIcon stopIcon = DottedIcon::GetIcon(iconPath, Qt::red);
     connectionSuccess = connectionSuccess && QObject::connect(&timer, &QTimer::timeout, [&]() {
-        if (SystemCtl::CheckStatus("sing-box")) {
+        if (coreService.IsRunning()) {
             trayIcon.setIcon(workIcon);
-            routeManager.UpdateActiveRoute();
-            startProxy->setText("Stop Proxy");
+            startProxy.setText("Stop Proxy");
         } else {
             trayIcon.setIcon(stopIcon);
-            startProxy->setText("Start Proxy");
+            startProxy.setText("Start Proxy");
         }
+        routeManager.UpdateActiveRoute();
     });
 
     if (!connectionSuccess)
-        qCritical() << "The signal could not be connected to the slot!";
+        qWarning() << "The signal could not be connected to the slot!";
 
-    menu.addMenu(routingMenu);
-    menu.addAction(restartProxy);
-    menu.addAction(startProxy);
+    menu.addMenu(&routingMenu);
+    menu.addAction(&restartProxy);
+    menu.addAction(&startProxy);
     menu.addSeparator();
-    menu.addAction(startWithSystem);
-    menu.addMenu(versionMenu);
-    menu.addAction(exitAction);
+    menu.addAction(&startWithSystem);
+    menu.addMenu(&versionMenu);
+    menu.addAction(&exitAction);
 
     trayIcon.setContextMenu(&menu);
     timer.start(1000);
     trayIcon.show();
+
+    if (coreService.ConfigFile->exists())
+        coreService.Start();
 
     return QApplication::exec();
 }

@@ -3,22 +3,14 @@
 
 #pragma once
 
-#include <QIcon>
-#include <QColor>
-#include <QPixmap>
 #include <QPainter>
+#include <QPixmap>
+#include <QColor>
+#include <QIcon>
 
 class DottedIcon {
 public:
-    explicit DottedIcon(const QString &iconPath);
-
-    QIcon GetIcon(const QColor &dotColor);
-
-private:
-    QPixmap basePixmap;
-    int radius = 40;
-    int x;
-    int y;
+    static QIcon GetIcon(QString &iconPath, const QColor &dotColor, int radius = 40, int rightBottomCornerMargin = 16);
 };
 
 #endif // SING_TRAY_DOTTEDICON_H

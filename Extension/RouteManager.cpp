@@ -1,38 +1,32 @@
 #include "RouteManager.h"
 
-RouteManager::RouteManager(QMenu *menu) : routesMenu(menu) {
+RouteManager::RouteManager(QObject *parent, QMenu *menu, QFile *configFile) : QObject(parent), routesMenu(menu), configFile(configFile) {
     LoadRoutes();
-}
 
-QString CalculateCRC32(const QString &filePath) {
-    QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly)) {
-        qWarning() << "Could not open file:" << filePath;
-        return {};
-    }
-    return QString::fromLatin1(QCryptographicHash::hash(file.readAll(), QCryptographicHash::RealSha3_256).toHex());
+    if (!configFile->exists() && !routesMenu->actions().isEmpty())
+        routesMenu->actions().first()->trigger();
+
+    UpdateActiveRoute();
 }
 
 void RouteManager::UpdateActiveRoute() {
-    QString currentHash = CalculateCRC32(destinationPath);
+    QString currentHash;
+    if (configFile->exists())
+        currentHash = Cryptographic::CalculateSha256(configFile->fileName());
 
     for (QAction *action: routesMenu->actions())
-        if (CalculateCRC32(QCoreApplication::applicationDirPath() + "/Routes/" + action->text() + ".json") == currentHash)
+        if (Cryptographic::CalculateSha256(RoutesDirPath + action->text() + ".json") == currentHash)
             action->setChecked(true);
         else
             action->setChecked(false);
 }
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "MemoryLeak"
-
 void RouteManager::LoadRoutes() {
-    QDir appDir(QCoreApplication::applicationDirPath());
-    QDir routesDir(appDir.filePath("Routes"));
+    QDir routesDir(RoutesDirPath);
 
     if (!routesDir.exists()) {
         qWarning() << "Directory 'Routes' does not exist.";
-        return;
+        exit(1);
     }
 
     routesDir.setNameFilters(routesFilter);
@@ -40,36 +34,30 @@ void RouteManager::LoadRoutes() {
 
     if (fileList.isEmpty()) {
         qWarning() << "No .json files found in 'Routes' directory.";
-        return;
+        exit(1);
     }
 
     routesMenu->clear();
     for (const QFileInfo &fileInfo: fileList) {
-        auto *routeAction = new QAction(fileInfo.fileName().remove(".json"), routesMenu);
+        auto routeAction = new QAction(fileInfo.fileName().remove(".json"), routesMenu);
         routeAction->setCheckable(true);
-
         routesMenu->addAction(routeAction);
 
-        QFileInfo localFileInfo = fileInfo;
-        bool connectionSuccess = QObject::connect(routeAction, &QAction::triggered, [localFileInfo, this]() {
-            QProcess process;
+        bool connectionSuccess = QObject::connect(routeAction, &QAction::triggered, [fileInfo, this]() {
+            if (configFile->exists() && !configFile->remove())
+                qWarning() << "Failed to delete" << configFile->fileName();
 
-            process.start("pkexec", QStringList() << "cp" << localFileInfo.absoluteFilePath() << destinationPath);
-            process.waitForFinished();
-
-            if (process.exitCode() == 0) {
-                SystemCtl::Execute("sing-box", "restart");
+            if (QFile::copy(fileInfo.absoluteFilePath(), configFile->fileName())) {
+                emit routeChanged();
                 UpdateActiveRoute();
             } else {
-                qWarning() << "Failed to copy" << localFileInfo.fileName() << process.readAllStandardError();
+                qWarning() << "Failed to copy" << fileInfo.fileName();
             }
         });
 
-        if (!connectionSuccess)
-            qCritical() << "The signal could not be connected to the slot!";
+        if (!connectionSuccess) {
+            qWarning() << "The signal could not be connected to the slot!";
+            delete routeAction;
+        }
     }
-
-    UpdateActiveRoute();
 }
-
-#pragma clang diagnostic pop
