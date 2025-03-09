@@ -1,6 +1,6 @@
 #include "Proxy.h"
 
-#define ToQstring(num) QString::number(num)
+#define IntToQstring(num) QString::number(num)
 using ProcessArgument = QPair<QString, QStringList>;
 
 bool Proxy::IsKde = qEnvironmentVariable("XDG_SESSION_DESKTOP") == "KDE" || qEnvironmentVariable("XDG_SESSION_DESKTOP") == "plasma";
@@ -20,20 +20,20 @@ void Proxy::SetSystemProxy(const QString &address, int httpPort, int socksPort) 
         for (const auto &protocol: QStringList{"http", "https", "ftp"})
             if (IsKde) {
                 actions << ProcessArgument{"kwriteconfig5", {"--file", ConfigPath + "/kioslaverc", "--group", "Proxy Settings", "--key", protocol + "Proxy",
-                                                             "http://" + address + " " + ToQstring(httpPort)}};
+                                                             "http://" + address + " " + IntToQstring(httpPort)}};
             } else if (IsGnome) {
                 actions << ProcessArgument{"gsettings", {"set", "org.gnome.system.proxy." + protocol, "host", address}};
-                actions << ProcessArgument{"gsettings", {"set", "org.gnome.system.proxy." + protocol, "port", ToQstring(httpPort)}};
+                actions << ProcessArgument{"gsettings", {"set", "org.gnome.system.proxy." + protocol, "port", IntToQstring(httpPort)}};
             }
     }
 
     if (hasSOCKS) {
         if (IsKde) {
             actions << ProcessArgument{"kwriteconfig5", {"--file", ConfigPath + "/kioslaverc", "--group", "Proxy Settings", "--key", "socksProxy",
-                                                         "socks://" + address + " " + ToQstring(socksPort)}};
+                                                         "socks://" + address + " " + IntToQstring(socksPort)}};
         } else if (IsGnome) {
             actions << ProcessArgument{"gsettings", {"set", "org.gnome.system.proxy.socks", "host", address}};
-            actions << ProcessArgument{"gsettings", {"set", "org.gnome.system.proxy.socks", "port", ToQstring(socksPort)}};
+            actions << ProcessArgument{"gsettings", {"set", "org.gnome.system.proxy.socks", "port", IntToQstring(socksPort)}};
         }
     }
 

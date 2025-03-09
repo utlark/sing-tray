@@ -18,7 +18,10 @@ CoreService::~CoreService() {
 void CoreService::Start() {
     if (!CoreService::IsRunning()) {
         Process.start(BinPath, {"--directory", WorkDir, "--disable-color", "run"});
-        Proxy::SetSystemProxy("127.0.0.1", 2080, 2080);
+
+        auto proxySettings = ConfigParser::GetMixedInbound(ConfigFile);
+        if (!proxySettings.first.isNull() && !proxySettings.first.isEmpty())
+            Proxy::SetSystemProxy(proxySettings.first, proxySettings.second, proxySettings.second);
 
         if (Process.waitForStarted())
             qDebug() << "Sing-box started";

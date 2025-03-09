@@ -8,6 +8,8 @@
 #include <QString>
 #include <QDir>
 
+#include "../Extension/ConfigParser.h"
+
 #include "Proxy.h"
 #include "Cap.h"
 
