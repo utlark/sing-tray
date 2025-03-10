@@ -26,14 +26,10 @@ int main(int argc, char *argv[]) {
 
     QMenu routingMenu("Active Routing", &menu);
     RouteManager routeManager(&app, &routingMenu, coreService.ConfigFile);
-    bool connectionSuccess = QObject::connect(&routeManager, &RouteManager::routeChanged, [&coreService]() {
-        coreService.Restart();
-    });
+    bool connectionSuccess = QObject::connect(&routeManager, &RouteManager::routeChanged, &coreService, &CoreService::Restart);
 
     QAction restartProxy("Restart Proxy", &menu);
-    connectionSuccess = connectionSuccess && QObject::connect(&restartProxy, &QAction::triggered, [&coreService]() {
-        coreService.Restart();
-    });
+    connectionSuccess = connectionSuccess && QObject::connect(&restartProxy, &QAction::triggered, &coreService, &CoreService::Restart);
 
     QAction startProxy(coreService.IsRunning() ? "Stop Proxy" : "Start Proxy", &menu);
     connectionSuccess = connectionSuccess && QObject::connect(&startProxy, &QAction::triggered, [&coreService]() {
@@ -46,9 +42,7 @@ int main(int argc, char *argv[]) {
     QAction startWithSystem("Start with system", &menu);
     startWithSystem.setCheckable(true);
     startWithSystem.setChecked(AutoRun::IsEnabled());
-    connectionSuccess = connectionSuccess && QObject::connect(&startWithSystem, &QAction::triggered, [=](bool checked) {
-        AutoRun::SetEnabled(checked);
-    });
+    connectionSuccess = connectionSuccess && QObject::connect(&startWithSystem, &QAction::triggered, AutoRun::SetEnabled);
 
     QMenu versionMenu("Version", &menu);
     QAction versionAction(appVersion, &versionMenu);
