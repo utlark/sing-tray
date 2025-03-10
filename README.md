@@ -21,6 +21,7 @@ A small Linux utility for convenient management of **sing-box** through the syst
 ## Usage
 
 After launch, an icon appears in the system tray through which you can:
+
 - Start or stop **sing-box**
 - Modify the **sing-box** configuration on the fly
 - Enable application autostart at system startup
