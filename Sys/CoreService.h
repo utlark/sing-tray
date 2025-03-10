@@ -31,8 +31,7 @@ public:
 
     QString WorkDir = QCoreApplication::applicationDirPath() + "/Core";
     QString BinPath = WorkDir + "/sing-box";
-
-    QFile *ConfigFile = new QFile(WorkDir + "/config.json");
+    QString ConfigFilePath = WorkDir + "/config.json";
 private:
     QProcess Process;
 };

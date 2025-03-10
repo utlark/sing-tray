@@ -24,16 +24,16 @@ signals:
 #pragma clang diagnostic pop
 
 public:
-    explicit RouteManager(QObject *parent, QMenu *menu, QFile *configFile);
+    explicit RouteManager(QObject *parent, QMenu *menu, const QString &configFilePath);
 
     void LoadRoutes();
 
     void UpdateActiveRoute();
 
+    QFile ConfigFile;
     QString RoutesDirPath = QCoreApplication::applicationDirPath() + "/Routes/";
 private:
     QMenu *RoutesMenu;
-    QFile *ConfigFile;
 
     QStringList RoutesFilter = QStringList() << "*.json";
 };

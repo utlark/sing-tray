@@ -1,9 +1,9 @@
 #include "RouteManager.h"
 
-RouteManager::RouteManager(QObject *parent, QMenu *menu, QFile *configFile) : QObject(parent), RoutesMenu(menu), ConfigFile(configFile) {
+RouteManager::RouteManager(QObject *parent, QMenu *menu, const QString &configFilePath) : QObject(parent), RoutesMenu(menu), ConfigFile(configFilePath) {
     LoadRoutes();
 
-    if (!configFile->exists() && !RoutesMenu->actions().isEmpty())
+    if (!ConfigFile.exists() && !RoutesMenu->actions().isEmpty())
         RoutesMenu->actions().first()->trigger();
 
     UpdateActiveRoute();
@@ -11,8 +11,8 @@ RouteManager::RouteManager(QObject *parent, QMenu *menu, QFile *configFile) : QO
 
 void RouteManager::UpdateActiveRoute() {
     QString currentHash;
-    if (ConfigFile->exists())
-        currentHash = Cryptographic::CalculateSha256(ConfigFile->fileName());
+    if (ConfigFile.exists())
+        currentHash = Cryptographic::CalculateSha256(ConfigFile.fileName());
 
     for (QAction *action: RoutesMenu->actions())
         if (Cryptographic::CalculateSha256(RoutesDirPath + action->text() + ".json") == currentHash)
@@ -44,10 +44,10 @@ void RouteManager::LoadRoutes() {
         RoutesMenu->addAction(routeAction);
 
         bool connectionSuccess = QObject::connect(routeAction, &QAction::triggered, [fileInfo, this]() {
-            if (ConfigFile->exists() && !ConfigFile->remove())
-                qWarning() << "Failed to delete" << ConfigFile->fileName();
+            if (ConfigFile.exists() && !ConfigFile.remove())
+                qWarning() << "Failed to delete" << ConfigFile.fileName();
 
-            if (QFile::copy(fileInfo.absoluteFilePath(), ConfigFile->fileName())) {
+            if (QFile::copy(fileInfo.absoluteFilePath(), ConfigFile.fileName())) {
                 emit routeChanged();
                 UpdateActiveRoute();
             } else {

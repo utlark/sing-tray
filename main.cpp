@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
     QMenu menu;
 
     QMenu routingMenu("Active Routing", &menu);
-    RouteManager routeManager(&app, &routingMenu, coreService.ConfigFile);
+    RouteManager routeManager(&app, &routingMenu, coreService.ConfigFilePath);
     bool connectionSuccess = QObject::connect(&routeManager, &RouteManager::routeChanged, &coreService, &CoreService::Restart);
 
     QAction restartProxy("Restart Proxy", &menu);
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
     timer.start(1000);
     trayIcon.show();
 
-    if (coreService.ConfigFile->exists())
+    if (routeManager.ConfigFile.exists())
         coreService.Start();
 
     return QApplication::exec();
