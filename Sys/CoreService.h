@@ -17,6 +17,8 @@ class CoreService : public QObject {
 Q_OBJECT
 
 public:
+    static void KillAllCores();
+
     explicit CoreService(QObject *parent);
 
     ~CoreService() override;

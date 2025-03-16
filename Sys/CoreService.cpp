@@ -1,5 +1,14 @@
 #include "CoreService.h"
 
+void CoreService::KillAllCores() {
+    QProcess p;
+    p.setProgram("killall");
+    p.setArguments({"-q", "sing-box"});
+    p.setProcessChannelMode(QProcess::SeparateChannels);
+    p.start();
+    p.waitForFinished(500);
+}
+
 CoreService::CoreService(QObject *parent) : QObject(parent) {
     if (!Cap::CheckPkexecInstall()) {
         qWarning() << "Please install \"pkexec\" first.";
@@ -16,6 +25,8 @@ CoreService::~CoreService() {
 
 void CoreService::Start() {
     if (!CoreService::IsRunning()) {
+        CoreService::KillAllCores();
+
         Process.start(BinPath, {"--directory", WorkDir, "--disable-color", "run"});
 
         auto proxySettings = ConfigParser::GetMixedInbound(ConfigFilePath);
